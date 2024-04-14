@@ -1,0 +1,43 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/rust
+{
+	"name": "Bevy - My First Video Game",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"runArgs": [
+		"--network=host",
+		"--privileged",
+		"--env-file",
+		"${localWorkspaceFolder}/.devcontainer/.env"
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"matklad.rust-analyzer",
+				"vadimcn.vscode-lldb",
+				"tamasfe.even-better-toml",
+				"serayuzgur.crates",
+				"mutantdino.resourcemonitor",
+				"usernamehw.errorlens",
+				"mhutchie.git-graph",
+				"editorconfig.editorconfig"
+			],
+			"settings": {
+				"lldb.executable": "/usr/bin/lldb",
+				"terminal.integrated.defaultProfile.linux": "zsh",
+				"files.watcherExclude": {
+					"**/target/**": true
+				},
+				"rust-analyzer.checkOnSave.command": "clippy"
+			}
+		}
+	},
+	"mounts": [
+		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind",
+		"source=/dev/,target=/dev/,type=bind",
+		"source=/etc/udev/rules.d,target=/etc/udev/rules.d,type=bind",
+		"source=devcontainer-cargo-cache-${devcontainerId},target=/usr/local/cargo,type=volume"
+	]
+	// "remoteUser": "vscode"
+}
