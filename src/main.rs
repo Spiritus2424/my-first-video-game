@@ -1,4 +1,3 @@
-use bevy::audio::Volume;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use rand::prelude::*;
@@ -15,12 +14,13 @@ fn main() {
         .add_systems(Startup, spawn_camera)
         .add_systems(Startup, spawn_player)
         .add_systems(Startup, spawn_enemies)
-        .add_systems(Startup, spawn_enemy_music)
+        // .add_systems(Startup, spawn_enemy_music)
         .add_systems(Update, player_movement)
         .add_systems(Update, confine_player_movement)
         .add_systems(Update, enemy_movement)
         .add_systems(Update, update_enemy_direction)
         .add_systems(Update, confine_enemy_movement)
+        .add_systems(Update, play_enemy_music)
         .run();
 }
 
@@ -31,9 +31,6 @@ pub struct Player;
 pub struct Enemy {
     pub direction: Vec2,
 }
-
-#[derive(Component)]
-pub struct EnemyMusic;
 
 pub fn spawn_player(
     mut commands: Commands,
@@ -80,16 +77,6 @@ pub fn spawn_enemies(
             },
         ));
     }
-}
-
-pub fn spawn_enemy_music(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn((
-        AudioBundle {
-            source: asset_server.load("audio/pluck_001.ogg"),
-            ..default()
-        },
-        EnemyMusic,
-    ));
 }
 
 pub fn player_movement(
@@ -160,8 +147,9 @@ pub fn enemy_movement(mut enemy_query: Query<(&mut Transform, &Enemy)>, time: Re
 
 pub fn update_enemy_direction(
     mut enemy_query: Query<(&Transform, &mut Enemy)>,
-    enemy_query_music: Query<&AudioSink, With<EnemyMusic>>,
     window_query: Query<&Window, With<PrimaryWindow>>,
+    mut commands: Commands,
+    asset_server: Res<AssetServer>
 ) {
     let window = window_query.get_single().unwrap();
 
@@ -176,21 +164,30 @@ pub fn update_enemy_direction(
         let mut direction_changed = false;
 
         let translation = enemy_transform.translation;
-        if translation.x < x_min || translation.x > x_max {
+        if translation.x <= x_min || translation.x >= x_max {
             enemy.direction.x *= -1.0;
             direction_changed = true;
         }
 
-        if translation.y < y_min || translation.y > y_max {
+        if translation.y <= y_min || translation.y >= y_max {
             enemy.direction.y *= -1.0;
             direction_changed = true;
         }
 
         if direction_changed {
-            if let Ok(sink) = enemy_query_music.get_single() {
-                sink.play();
-            }
+            commands.spawn((
+                AudioBundle {
+                    source: asset_server.load("audio/pluck_001.ogg"),
+                    settings: PlaybackSettings::DESPAWN,
+                },
+            ));
         }
+    }
+}
+
+pub fn play_enemy_music(enemy_query_music: Query<&AudioSink, With<Enemy>>,) {
+    for audio_sink in enemy_query_music.iter() {
+        audio_sink.play();
     }
 }
 
