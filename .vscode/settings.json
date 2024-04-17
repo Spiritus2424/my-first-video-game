@@ -1,3 +1,5 @@
 {
-    "rust-analyzer.showUnlinkedFileNotification": false
+    "editor.formatOnSave": true,
+    "rust-analyzer.imports.group.enable": true,
+    "rust-analyzer.imports.prefix": "plain",
 }

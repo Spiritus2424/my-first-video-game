@@ -1,14 +1,14 @@
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 
-use crate::enemy::components::*;
-use crate::enemy::ENEMY_SIZE;
-use crate::events::GameOverEvent;
-use crate::player::components::*;
-use crate::player::{PLAYER_SIZE, PLAYER_SPEED};
-use crate::score::resources::Score;
-use crate::star::components::*;
-use crate::star::STAR_SIZE;
+use super::super::enemy::components::*;
+use super::super::enemy::ENEMY_SIZE;
+use super::super::events::GameOverEvent;
+use super::super::score::resources::Score;
+use super::super::star::components::*;
+use super::super::star::STAR_SIZE;
+use super::components::*;
+use super::{PLAYER_SIZE, PLAYER_SPEED};
 
 pub fn spawn_player(
     mut commands: Commands,
