@@ -1,8 +1,8 @@
-use std::ops::Deref;
-
 use bevy::app::AppExit;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
+
+use crate::AppState;
 
 use super::{events::*, SimulationState};
 
@@ -23,23 +23,35 @@ pub fn exit_game(
     }
 }
 
-pub fn handle_game_over(mut game_over_event_reader: EventReader<GameOverEvent>) {
+pub fn handle_game_over(
+    mut game_over_event_reader: EventReader<GameOverEvent>,
+    mut next_app_state: ResMut<NextState<AppState>>,
+) {
     for event in game_over_event_reader.read() {
-        println!("Your final score is: {}", event.score.to_string())
+        println!("Your final score is: {}", event.score.to_string());
+        next_app_state.set(AppState::GameOver);
     }
 }
 
+pub fn pause_simulation(mut next_simulation_state: ResMut<NextState<SimulationState>>) {
+    next_simulation_state.set(SimulationState::Paused);
+}
+
+pub fn resume_simulation(mut next_simulation_state: ResMut<NextState<SimulationState>>) {
+    next_simulation_state.set(SimulationState::Running);
+}
+
 pub fn toggle_simulation(
-    mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     simulation_state: Res<State<SimulationState>>,
+    mut next_simulation_state: ResMut<NextState<SimulationState>>,
 ) {
     if keyboard_input.just_pressed(KeyCode::Space) {
         if *simulation_state.get() == SimulationState::Running {
-            commands.insert_resource(NextState(Some(SimulationState::Paused)));
+            next_simulation_state.set(SimulationState::Paused);
             println!("Simulation Paused")
         } else {
-            commands.insert_resource(NextState(Some(SimulationState::Running)));
+            next_simulation_state.set(SimulationState::Running);
             println!("Simulation Running")
         }
     }
